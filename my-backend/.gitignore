@@ -1,0 +1,7 @@
+venv/
+serviceAccountKey.json
+.env
+__pycache__/
+*.pyc
+
+ไฟล์ .gitignore บอก Git ว่า "ไฟล์พวกนี้ห้าม upload 
