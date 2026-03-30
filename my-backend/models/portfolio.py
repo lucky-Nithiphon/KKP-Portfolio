@@ -9,7 +9,7 @@ class PortfolioCreate(BaseModel):
     Sakaname: str
     university: str
     portfolioLink: str
-
+    coverprom: str          # ← Base64 string จาก frontend
 
 class PortfolioResponse(BaseModel):
     id: str

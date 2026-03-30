@@ -40,16 +40,34 @@ export default function AddPortfolioPage() {
                 img.src = event.target?.result as string;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // ลดขนาดความกว้างลงเพื่อประหยัดพื้นที่
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
+                    
+                    // ปรับขนาดใหญ่ขึ้นและคงสัดส่วน
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_WIDTH = 1200; // เพิ่มจาก 600 เป็น 1200
+                    const MAX_HEIGHT = 1200; // เพิ่มจากไม่มีเป็น 1200
+                    
+                    // คำนวณขนาดใหม่โดยคงสัดส่วน
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = (height * MAX_WIDTH) / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = (width * MAX_HEIGHT) / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
 
                     const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    ctx?.drawImage(img, 0, 0, width, height);
 
-                    // บีบอัดคุณภาพเหลือ 0.6 (60%) เพื่อให้ขนาดไฟล์เล็กกว่า 1MB แน่นอน
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                    // ปรับคุณภาพเป็น 0.8 (80%) เพื่อความชัดที่ดีขึ้น
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                     resolve(dataUrl);
                 };
             };

@@ -28,6 +28,13 @@ async def create_portfolio(
     current_user=Depends(get_optional_user)
 ):
     try:
+        # Debug: ตรวจสอบข้อมูลที่ได้รับ
+        print(f"🔍 Debug: Received portfolio data:")
+        print(f"   - fullName: {portfolio.fullName}")
+        print(f"   - coverprom type: {type(portfolio.coverprom)}")
+        print(f"   - coverprom length: {len(portfolio.coverprom) if portfolio.coverprom else 0}")
+        print(f"   - coverprom starts with: {portfolio.coverprom[:50] if portfolio.coverprom else 'None'}...")
+        
         # จัดการ UID (ถ้าไม่ได้ Login ให้ใช้ 'guest')
         uid = current_user["uid"] if current_user else "guest"
         
@@ -42,14 +49,6 @@ async def create_portfolio(
             "message": "เพิ่ม portfolio สำเร็จ (บันทึกแบบ Base64)",
             "id": doc_ref[1].id
         }
-    except Exception as e:
-        print(f"❌ Error detailed: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail= f"เกิดข้อผิดพลาด: {str(e)}"
-        )
-    except HTTPException:
-        raise
     except Exception as e:
         print(f"❌ Error detailed: {str(e)}") # พิมพ์ลง Terminal ของ Python
         raise HTTPException(
