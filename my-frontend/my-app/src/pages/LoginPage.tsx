@@ -2,6 +2,8 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate , Link} from "react-router-dom";
+import axios from "axios";
+import { signInWithCustomToken } from "firebase/auth";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("")
@@ -16,8 +18,14 @@ export default function LoginPage() {
         setLoading(true)
 
         try{
-
-            await signInWithEmailAndPassword(auth, email, password)
+            
+            const response =  await axios.post("http://localhost:8000/auth/login",{
+                email: email,
+                password: password
+            });
+            const customToken = response.data.token;
+            await signInWithCustomToken( auth, customToken)
+            
             navigate("/")
 
         } catch (err){

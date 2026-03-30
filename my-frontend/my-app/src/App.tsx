@@ -3,6 +3,7 @@ import { useAuth } from "./context/AuthContext"
 import HomePage from "./pages/HomePage"
 import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
+import AddPortfolioPage from "./pages/AddPortfolioPage"
 
 export default function App() {
   const { user, loading} = useAuth()
@@ -13,15 +14,8 @@ export default function App() {
 
   return (
     <Routes>
-            {/* หน้าแรก — ต้อง login ก่อน */}
-            <Route
-                path="/"
-                element={
-                    user
-                        ? <HomePage />           // login แล้ว → แสดง HomePage
-                        : <Navigate to="/login" /> // ยังไม่ login → ไป login
-                }
-            />
+            {/* หน้าแรก — แสดงให้ทุกคนเห็น แต่ปุ่มดูข้างในจะเช็ค login อีกที */}
+            <Route path="/" element={<HomePage />} />
 
             {/* หน้า Login — ถ้า login แล้วให้ไปหน้าแรกเลย */}
             <Route
@@ -42,6 +36,9 @@ export default function App() {
                         : <RegisterPage />       // ยังไม่ login → แสดง RegisterPage
                 }
             />
+
+            {/* หน้าเพิ่ม Portfolio — ให้ทุกคนเข้าได้ตามที่คุณต้องการ */}
+            <Route path="/add-portfolio" element={<AddPortfolioPage />} />
         </Routes>
   )
 }

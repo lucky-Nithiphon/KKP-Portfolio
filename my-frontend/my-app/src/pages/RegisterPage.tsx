@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { auth } from "../firebase"
 import { useNavigate, Link } from "react-router-dom"
+import axios  from "axios"
 
 export default function RegisterPage() {
     const [email, setEmail] = useState("")
@@ -17,16 +18,20 @@ export default function RegisterPage() {
         setLoading(true)
 
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password)
             
-            // Update profile กับ displayName
-            await updateProfile(userCredential.user, {
-                displayName: displayName
-            })
+            const response =  await axios.post("http://localhost:8000/auth/register", {
+                email: email,
+                password: password,
+                display_name: displayName
+            });
             
-            navigate("/")
+            alert("สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ");
+            navigate("/login");
+
         } catch (err: any) {
-            setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง")
+            // ถ้า Backend ส่ง error มา (เช่น อีเมลซ้ำ)
+            const message = err.response?.data?.detail || "เกิดข้อผิดพลาดในการสมัครสมาชิก";
+            setError(message);
         } finally {
             setLoading(false)
         }

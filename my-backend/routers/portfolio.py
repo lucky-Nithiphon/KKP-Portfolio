@@ -1,94 +1,58 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from models.portfolio import PortfolioCreate, PortfolioResponse
 from services.firebase import db, bucket
-from dependencies.auth import require_login
+from dependencies.auth import get_optional_user
 import uuid
 
 router = APIRouter()
 
 @router.get("/")
-async def get_portfolio(current_user = Depends(require_login)):
+async def get_portfolios():
     try:
-
-        portfolio_ref = db.collection("portfolios").stream()
-
+        portfolios_ref = db.collection("portfolios").stream()
         result = []
-        for doc in portfolio_ref:
+        for doc in portfolios_ref:
             data = doc.to_dict()
             data["id"] = doc.id
             result.append(data)
         return result
-
-    except Exception as e:
-        raise HTTPException(
-            status_code= 500,
-            detail= "เกิดข้อผิดพลาดในการดึงข้อมูล"
-        )
-        
-
-@router.post("/")
-async def create_portfolio(
-
-    fullName: str = Form(...),
-    nickname: str = Form(...),
-    graduationYear: int = Form(...),
-    Kananame: str = Form(...),
-    Sakaname: str = Form(...),
-    university: str = Form(...),
-    portfolioLink: str = Form(...),
-    # UploadFile คือตัวรับไฟล์รูปภาพ
-    coverprom: UploadFile = File(...),
-    current_user=Depends(require_login)
-):
-    try:
-
-        allowed_types = ["image/jpeg", "image/png", "image/webp"]
-        if coverprom.content_type not in allowed_types:
-            raise HTTPException(
-                status_code=400,
-                detail="รูปภาพต้องเป็นไฟล์ประเภท JPEG, PNG, หรือ WebP"
-            )
-
-        image_data = await coverprom.read()
-        if len(image_data) > 5 * 1024 * 1024:
-            raise HTTPException(
-                status_code = 400,
-                detail="รูปภาพต้องมีขนาดไม่เกิน 5MB"
-            )
-
-        uid = current_user["uid"]
-        file_extention = coverprom.filename.split(".")[-1]
-        filename = f"portfolio-covers/{uid}/{uuid.uuid4()}.{file_extention}"
-
-        blob = bucket.blob(filename)
-        blob.upload_from_string(
-            image_data,
-            content_type = coverprom.content_type
-        )
-
-        blob.make_public()
-        image_url = blob.public_url
-
-        doc_ref = db.collection("portfolios").add({
-            "fullName": fullName,
-            "nickname": nickname,
-            "graduationYear": graduationYear,
-            "Kananame": Kananame,
-            "Sakaname": Sakaname,
-            "university": university,
-            "portfolioLink": portfolioLink,
-            "coverprom": image_url,      # เก็บแค่ URL ไม่ใช่ base64
-            "owner_uid": uid,            # รู้ว่าใครเพิ่ม
-        })
-
-        return{
-            "message": "เพิ่ม portfolio สำเร็จ",
-            "id": doc_ref[1].id
-        }
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail= "เกิดข้อผิดพลาดในการเพิ่ม portfolio"
+            detail="เกิดข้อผิดพลาดในการดึงข้อมูล"
+        )
+
+@router.post("/")
+async def create_portfolio(
+    portfolio: PortfolioCreate, # รับเป็น JSON ตาม Model ที่มีอยู่
+    current_user=Depends(get_optional_user)
+):
+    try:
+        # จัดการ UID (ถ้าไม่ได้ Login ให้ใช้ 'guest')
+        uid = current_user["uid"] if current_user else "guest"
+        
+        # เตรียมข้อมูลเพื่อบันทึกลง Firestore
+        portfolio_data = portfolio.dict()
+        portfolio_data["owner_uid"] = uid
+        
+        # บันทึกลง Firestore (coverprom จะเป็น Base64 string ที่ส่งมาจาก React)
+        doc_ref = db.collection("portfolios").add(portfolio_data)
+
+        return{
+            "message": "เพิ่ม portfolio สำเร็จ (บันทึกแบบ Base64)",
+            "id": doc_ref[1].id
+        }
+    except Exception as e:
+        print(f"❌ Error detailed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail= f"เกิดข้อผิดพลาด: {str(e)}"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error detailed: {str(e)}") # พิมพ์ลง Terminal ของ Python
+        raise HTTPException(
+            status_code=500,
+            detail= f"เกิดข้อผิดพลาด: {str(e)}" # ส่งกลับไปแสดงที่หน้าเว็บ
         )
