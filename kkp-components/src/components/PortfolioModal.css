@@ -1,0 +1,355 @@
+/* ─────────────────────────────────────────
+   PortfolioModal.css
+   ───────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+
+/* ── Overlay ── */
+.pm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 35, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+
+    animation: pm-fade-in 0.2s ease;
+}
+
+@keyframes pm-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Modal box ── */
+.pm-modal {
+    background: #fff;
+    border-radius: 4px;
+    width: 680px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    animation: pm-slide-in 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes pm-slide-in {
+    from { transform: translateY(20px) scale(0.97); opacity: 0; }
+    to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+/* ── Cover ── */
+.pm-cover {
+    position: relative;
+    height: 220px;
+    flex-shrink: 0;
+    background: #EDE8DE;
+    overflow: hidden;
+}
+
+.pm-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pm-cover-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #E8E0D0, #D4C9B5);
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.3);
+    font-family: 'Sarabun', sans-serif;
+    letter-spacing: 0.06em;
+}
+
+.pm-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.28);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background 0.15s;
+    z-index: 1;
+}
+
+.pm-close:hover {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.pm-accent-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #C8A84B;
+}
+
+/* ── Scrollable body ── */
+.pm-body {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.pm-inner {
+    padding: 1.5rem 1.75rem;
+    font-family: 'Sarabun', sans-serif;
+}
+
+/* ── Header ── */
+.pm-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.pm-univ-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #9A8F82;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.pm-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1B2E4B;
+    line-height: 1.2;
+    margin: 0 0 4px 0;
+}
+
+.pm-nick {
+    font-size: 13px;
+    color: #7A6E62;
+    margin: 0;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.pm-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+    flex-shrink: 0;
+}
+
+.pm-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 500;
+}
+
+.pm-badge-year {
+    background: #F0EDE5;
+    color: #5A5248;
+}
+
+.pm-badge-fac {
+    background: #EAF0F8;
+    color: #1B4A7A;
+}
+
+/* ── Meta grid ── */
+.pm-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem 1.5rem;
+    margin-bottom: 1.1rem;
+}
+
+.pm-meta-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: #9A8F82;
+    font-weight: 600;
+    margin-bottom: 3px;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.pm-meta-value {
+    font-size: 13px;
+    color: #1B2E4B;
+    font-weight: 500;
+    font-family: 'Sarabun', sans-serif;
+}
+
+/* ── Divider ── */
+.pm-divider {
+    height: 1px;
+    background: #F0EDE5;
+    margin: 1.1rem 0;
+}
+
+/* ── Description ── */
+.pm-desc-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: #9A8F82;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.pm-desc-text {
+    font-size: 13px;
+    color: #3D3630;
+    line-height: 1.85;
+    background: #FAFAF8;
+    border: 1px solid #F0EDE5;
+    border-radius: 3px;
+    padding: 1rem;
+    white-space: pre-wrap;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.pm-desc-empty {
+    color: #B0A898;
+    font-style: italic;
+}
+
+/* ── Footer ── */
+.pm-footer {
+    padding: 1rem 1.75rem;
+    border-top: 1px solid #F0EDE5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FAFAF8;
+    flex-shrink: 0;
+    gap: 1rem;
+}
+
+.pm-footer-note {
+    font-size: 11px;
+    color: #9A8F82;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.pm-logged-in {
+    color: #1A6E60;
+    font-weight: 600;
+}
+
+.pm-not-logged {
+    color: #C8A84B;
+    font-weight: 600;
+}
+
+.pm-btn-portal {
+    background: #1B2E4B;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.pm-btn-portal:hover {
+    background: #243E63;
+}
+
+.pm-btn-lock {
+    background: #EDE8DE;
+    color: #7A6E62;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.pm-btn-lock:hover {
+    background: #E0DACD;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+    .pm-modal {
+        max-height: 95vh;
+        border-radius: 3px 3px 0 0;
+        align-self: flex-end;
+    }
+
+    .pm-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .pm-cover {
+        height: 180px;
+    }
+
+    .pm-inner {
+        padding: 1.1rem 1.25rem;
+    }
+
+    .pm-name {
+        font-size: 18px;
+    }
+
+    .pm-header {
+        flex-direction: column-reverse;
+        gap: 0.5rem;
+    }
+
+    .pm-badges {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .pm-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-footer {
+        padding: 0.85rem 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .pm-btn-portal,
+    .pm-btn-lock {
+        width: 100%;
+        justify-content: center;
+    }
+}

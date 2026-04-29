@@ -1,0 +1,184 @@
+import { useEffect, useState } from "react"
+import { useAuth } from "../context/AuthContext"
+import { useNavigate, Link } from "react-router-dom"
+import { auth } from "../firebase"
+import axios from "axios"
+import PortfolioModal from "../components/PortfolioModal"
+
+interface Portfolio {
+    id: string
+    fullName: string
+    nickname: string
+    graduationYear: number
+    Kananame: string
+    Sakaname: string
+    university: string
+    portfolioLink: string
+    coverprom: string
+    description?: string   // ← field ใหม่สำหรับคำอธิบาย
+}
+
+export default function HomePage() {
+    const { user, loading: authLoading } = useAuth()
+    const [portfolios, setPortfolios] = useState<Portfolio[]>([])
+    const [fetching, setFetching] = useState(true)
+    const [error, setError] = useState("")
+
+    // ── Modal state ──
+    const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(null)
+
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const fetchPortfolios = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/portfolios/")
+                setPortfolios(response.data)
+            } catch (err) {
+                console.error("Fetch error:", err)
+                setError("ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการเชื่อมต่อ Backend")
+            } finally {
+                setFetching(false)
+            }
+        }
+        fetchPortfolios()
+    }, [])
+
+    const handleLogout = async () => {
+        try {
+            await auth.signOut()
+            navigate("/")
+        } catch (err) {
+            console.error("Logout error", err)
+        }
+    }
+
+    // ── เปิด modal แทนการเปิด link โดยตรง ──
+    const handleCardClick = (portfolio: Portfolio) => {
+        setSelectedPortfolio(portfolio)
+    }
+
+    return (
+        <div className="home-container">
+
+            {/* ── Navbar ── */}
+            <nav className="navbar" style={{
+                display: "flex", justifyContent: "space-between",
+                padding: "1rem", background: "#f0f0f0", marginBottom: "2rem"
+            }}>
+                <div className="logo">
+                    <h1 style={{ margin: 0 }}>KKP Portfolio</h1>
+                </div>
+                <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <button
+                        onClick={() => navigate("/add-portfolio")}
+                        style={{
+                            background: "#28a745", color: "white", border: "none",
+                            padding: "8px 15px", borderRadius: "5px", cursor: "pointer", fontWeight: "bold"
+                        }}
+                    >
+                        ➕ แชร์ Portfolio
+                    </button>
+
+                    {!authLoading && (
+                        user ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                <span>สวัสดีคุณ, <strong>{user.displayName || user.email}</strong></span>
+                                <button
+                                    onClick={handleLogout}
+                                    style={{
+                                        background: "#ff4d4d", color: "white", border: "none",
+                                        padding: "5px 15px", borderRadius: "5px", cursor: "pointer"
+                                    }}
+                                >
+                                    ออกจากระบบ
+                                </button>
+                            </div>
+                        ) : (
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <Link to="/login" style={{ textDecoration: "none", color: "#007bff" }}>เข้าสู่ระบบ</Link>
+                                <Link to="/register" style={{ textDecoration: "none", color: "#28a745" }}>สมัครสมาชิก</Link>
+                            </div>
+                        )
+                    )}
+                </div>
+            </nav>
+
+            <h2>Portfolio ทั้งหมด</h2>
+
+            {fetching ? (
+                <div>กำลังโหลดข้อมูล Portfolio...</div>
+            ) : error ? (
+                <div style={{ color: "red", padding: "1rem", border: "1px solid red" }}>{error}</div>
+            ) : portfolios.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "3rem", border: "2px dashed #ccc" }}>
+                    <h3>ยังไม่มีข้อมูล Portfolio ในระบบ</h3>
+                    <p>มาเป็นคนแรกที่แชร์ผลงานของคุณ!</p>
+                </div>
+            ) : (
+                <div
+                    className="portfolio-grid"
+                    style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "2rem" }}
+                >
+                    {portfolios.map((portfolio) => (
+                        <div
+                            key={portfolio.id}
+                            className="portfolio-card"
+                            style={{
+                                border: "1px solid #ddd", borderRadius: "10px",
+                                overflow: "hidden", paddingBottom: "1rem",
+                                cursor: "pointer", transition: "transform 0.18s, box-shadow 0.18s"
+                            }}
+                            onClick={() => handleCardClick(portfolio)}
+                            onMouseEnter={e => {
+                                (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"
+                                ;(e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 20px rgba(0,0,0,0.1)"
+                            }}
+                            onMouseLeave={e => {
+                                (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"
+                                ;(e.currentTarget as HTMLDivElement).style.boxShadow = "none"
+                            }}
+                        >
+                            <img
+                                src={portfolio.coverprom}
+                                alt={portfolio.fullName}
+                                style={{ width: "100%", height: "220px", objectFit: "cover" }}
+                            />
+                            <div className="portfolio-info" style={{ padding: "1rem" }}>
+                                <h3 style={{ margin: "0 0 0.5rem 0" }}>{portfolio.fullName}</h3>
+                                <p style={{ margin: "0.2rem 0" }}>🎓 ปีที่จบ: {portfolio.graduationYear}</p>
+                                <p style={{ margin: "0.2rem 0" }}>🏛️ {portfolio.university}</p>
+                                <p style={{ margin: "0.2rem 0", fontSize: "0.9rem", color: "#666" }}>
+                                    {portfolio.Kananame} - {portfolio.Sakaname}
+                                </p>
+
+                                {/* ── ปุ่มเปลี่ยนเป็นเปิด modal ── */}
+                                <button
+                                    style={{
+                                        marginTop: "1rem", width: "100%", padding: "10px",
+                                        background: "#1B2E4B", color: "white",
+                                        border: "none", borderRadius: "5px", cursor: "pointer"
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleCardClick(portfolio)
+                                    }}
+                                >
+                                    ดูรายละเอียด
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* ── Portfolio Modal ── */}
+            <PortfolioModal
+                portfolio={selectedPortfolio}
+                isLoggedIn={!!user}
+                onClose={() => setSelectedPortfolio(null)}
+            />
+
+        </div>
+    )
+}
